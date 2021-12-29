@@ -1,5 +1,5 @@
 import React, { useRef, useEffect  } from 'react';
-import Generator from "../geometry/generator";
+import Drawer from "../geometry/drawer";
 
 interface CanvasProps {
 
@@ -20,14 +20,21 @@ const Canvas = ({ width, height }: CanvasProps) => {
     const context = canvas.getContext('2d');
     if (context == null) throw new Error('Could not get context');
 
-    var generator = new Generator(context, width, height);
-    generator.generate();
-  }, [])
+    var drawer = new Drawer(context, width, height);
+    drawer.start();
+  }, [width, height])
 
   return <canvas
     ref={canvasRef}
     height={height}
     width={width}
+    style={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        zIndex: "-4",
+        opacity: 1,
+      }}
     />
 }
 

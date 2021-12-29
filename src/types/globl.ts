@@ -7,3 +7,10 @@ export interface Circle {
   y: number,
   r: number
 }
+
+export interface Particle {
+  x: number,
+  y: number,
+  speed: number,
+  angle: number,
+}
