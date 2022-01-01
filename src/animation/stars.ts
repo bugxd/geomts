@@ -1,4 +1,7 @@
-class Particle {
+import IParticle from "./particle";
+import { ContextOptions } from "../types/globl";
+
+class Particle implements IParticle {
   ctx: CanvasRenderingContext2D;
   x: number;
   y: number;
@@ -6,6 +9,8 @@ class Particle {
   speedX: number;
   speedY: number;
   color: string;
+
+  stuck: boolean = false;
 
   constructor(
     ctx: CanvasRenderingContext2D,
@@ -16,17 +21,21 @@ class Particle {
     this.ctx = ctx;
     this.x = x;
     this.y = y;
-    this.size = Math.random() * 7 + 1;
+    this.size = Math.random() * 15 + 1;
     this.speedX = Math.random() * 2 -1.5;
     this.speedY = Math.random() * 2 -1.5;
     this.color = color;
   }
 
   update() {
-    this.x += this.speedX;
-    this.y += this.speedY;
-    if(this.size > 0.2) {
-      this.size -= 0.1;
+    if(!this.stuck) {
+      this.x += this.speedX;
+      this.y += this.speedY;
+      if(this.size > 0.2) {
+        this.size -= 0.1;
+      }
+
+      this.stuck = Math.random() < 0.01;
     }
     this.draw();
   }
@@ -42,6 +51,7 @@ class Particle {
 
 class Stars {
   ctx: CanvasRenderingContext2D;
+  filterCtx: CanvasRenderingContext2D;
   width: number;
   height: number;
   color: string;
@@ -50,20 +60,19 @@ class Stars {
   done = false;
 
   constructor(
-    ctx: CanvasRenderingContext2D,
-    width: number,
-    height: number,
+    options: ContextOptions,
     color: string,
   ) {
-    this.ctx = ctx;
-    this.width = width;
-    this.height = height;
+    this.ctx = options.ctx;
+    this.filterCtx = options.filterCtx;
+    this.width = options.width;
+    this.height = options.height;
     this.color = color;
   }
 
   addParticles(x: number, y: number, count: number) {
     for(let i = 0; i<count; i++) {
-      this.particles.push(new Particle(this.ctx, x, y, this.color));
+      this.particles.push(new Particle(this.filterCtx, x, y, this.color));
     }
   }
 
@@ -80,7 +89,7 @@ class Stars {
         const dx = current.x - other.x;
         const dy = current.y - other.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
-        if(distance < 100) {
+        if(distance < 50) {
           // distance smaller 100 px
           this.ctx.beginPath();
           this.ctx.strokeStyle = this.color

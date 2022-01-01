@@ -1,11 +1,15 @@
 //https://www.youtube.com/watch?v=nrJh8-Ixnu8
 import Stars from "../animation/stars";
+import IParticle from "./particle";
+import { ContextOptions } from "../types/globl";
 
-class Drop {
+//https://codepen.io/franksLaboratory/pen/zYvGWMY?editors=0010
+
+class Particle implements IParticle {
   ctx: CanvasRenderingContext2D;
   x: number;
   y: number;
-  color: string; // color in hsl
+  color: string;
   size: number;
   weight: number;
   directionX: number;
@@ -21,9 +25,10 @@ class Drop {
     this.y = y;
     this.color = color;
     this.size = 10;
-    this.weight = this.randomBetween(-3,2);
+    // negative weight make particle go upwards
+    this.weight = this.randomBetween(-7,5);
     if(this.weight < 0)
-      this.directionX = this.randomBetween(-4,4);
+      this.directionX = this.randomBetween(-2,2);
     else
       this.directionX = this.randomBetween(-2,2);
   }
@@ -39,8 +44,8 @@ class Drop {
     this.ctx.fillStyle = this.color;
     this.ctx.beginPath();
     this.ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-    this.ctx.closePath();
     this.ctx.fill();
+    this.ctx.closePath();
   }
 
   randomBetween(min: number, max: number): number {
@@ -50,56 +55,71 @@ class Drop {
 
 class Rain {
   ctx: CanvasRenderingContext2D;
+  filterCtx: CanvasRenderingContext2D;
   width: number;
   height: number;
-  drops: Drop[] = [];
+  particles: Particle[] = [];
   stars: Stars[] = [];
 
   constructor(
-    ctx: CanvasRenderingContext2D,
-    width: number,
-    height: number
+    options: ContextOptions
   ) {
-    this.ctx = ctx;
-    this.width = width;
-    this.height = height;
+    this.ctx = options.ctx;
+    this.filterCtx = options.filterCtx;
+    this.width = options.width;
+    this.height = options.height;
 
     const count = 10
 
     for(let i = 0; i<count; i++) {
       const color = `hsl(${360 / count * i},100%, 50%)`
-      this.drops.push(new Drop(
+      this.particles.push(new Particle(
         this.ctx,
         this.width/2,
-        100,
+        200,
         color));
-      const star = new Stars(
-        this.ctx,
-        this.width,
-        this.height,
+      const star = new Stars({
+          ctx: this.ctx,
+          filterCtx: this.filterCtx,
+          width: this.width,
+          height: this.height
+        },
         color,
       );
 
       star.animate();
       this.stars.push(star);
     }
-
-    console.log(this.stars);
   }
+
+  x = 150;
 
   animate() {
     let done = false;
 
-    this.ctx.fillStyle = "rgba(255,255,255,1)";
-    this.ctx.fillRect(0, 0, this.width, this.height);
+    this.ctx.clearRect(0, 0, this.width, this.height);
+    this.filterCtx.clearRect(0, 0, this.width, this.height);
 
-    for(let i = 0; i<this.drops.length; i++) {
-      const current = this.drops[i];
+    this.filterCtx.fillStyle ="black";
+    this.filterCtx.beginPath();
+    this.filterCtx.arc(50, 100, 50, 0, Math.PI * 2);
+    this.filterCtx.fill();
+    this.filterCtx.closePath();
+    this.filterCtx.fillStyle ="black";
+    this.filterCtx.beginPath();
+    this.filterCtx.arc(this.x, 100, 50, 0, Math.PI * 2);
+    this.filterCtx.fill();
+    this.filterCtx.closePath();
+    this.x++;
+    if(this.x > 200) this.x = 100;
+
+    for(let i = 0; i<this.particles.length; i++) {
+      const current = this.particles[i];
       current.update();
 
       this.stars[i].addParticles(current.x, current.y, 1);
       this.stars[i].animate();
-      done = done || current.y > this.height
+      done = done && current.y > this.height;
     }
 
     if(!done)
