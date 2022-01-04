@@ -44,6 +44,10 @@ export class Hexagon {
     };
   }
 
+  draw() {
+
+  }
+
   toObject(): object {
     return {
       a: this.a,
@@ -60,7 +64,7 @@ export class Hexagon {
   }
 
   /**
-  * Sqrt of 3 times a divide by two
+  * Square root of 3 times a divide by two
   */
   sqrtThreeDivide2(a: number): number { return ((Math.sqrt(3)*a)/2); }
 }

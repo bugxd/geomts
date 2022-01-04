@@ -3,6 +3,7 @@ import { ContextOptions } from "../types/globl";
 
 // https://www.oreilly.com/library/view/html5-canvas/9781449308032/ch05.html
 class Drawer {
+  // `hsl(${((i+j)*15)},100%, 50%)`
   ctx: CanvasRenderingContext2D;
   filterCtx: CanvasRenderingContext2D;
   width: number;

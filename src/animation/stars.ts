@@ -105,9 +105,6 @@ class Stars {
         i--;
       }
     }
-
-    // if(!this.done)
-    //   requestAnimationFrame(this.animate.bind(this));
   }
 
   stop() {

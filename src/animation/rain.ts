@@ -2,6 +2,7 @@
 import Stars from "../animation/stars";
 import IParticle from "./particle";
 import { ContextOptions } from "../types/globl";
+import HexagonGrid from "./hexagon";
 
 //https://codepen.io/franksLaboratory/pen/zYvGWMY?editors=0010
 
@@ -61,6 +62,10 @@ class Rain {
   particles: Particle[] = [];
   stars: Stars[] = [];
 
+  // ###### testing
+  hexagon: HexagonGrid;
+  // ###### testing end
+
   constructor(
     options: ContextOptions
   ) {
@@ -69,10 +74,12 @@ class Rain {
     this.width = options.width;
     this.height = options.height;
 
-    const count = 10
+    this.hexagon = new HexagonGrid(options, 50);
+
+    const count = 5
 
     for(let i = 0; i<count; i++) {
-      const color = `hsl(${360 / count * i},100%, 50%)`
+      const color = "black";
       this.particles.push(new Particle(
         this.ctx,
         this.width/2,
@@ -92,32 +99,23 @@ class Rain {
     }
   }
 
-  x = 150;
-
   animate() {
-    let done = false;
+    let done = true;
 
     this.ctx.clearRect(0, 0, this.width, this.height);
     this.filterCtx.clearRect(0, 0, this.width, this.height);
 
-    this.filterCtx.fillStyle ="black";
-    this.filterCtx.beginPath();
-    this.filterCtx.arc(50, 100, 50, 0, Math.PI * 2);
-    this.filterCtx.fill();
-    this.filterCtx.closePath();
-    this.filterCtx.fillStyle ="black";
-    this.filterCtx.beginPath();
-    this.filterCtx.arc(this.x, 100, 50, 0, Math.PI * 2);
-    this.filterCtx.fill();
-    this.filterCtx.closePath();
-    this.x++;
-    if(this.x > 200) this.x = 100;
+    // ########## testing
+
+    this.hexagon.draw();
+
+    // ########### testing end
 
     for(let i = 0; i<this.particles.length; i++) {
       const current = this.particles[i];
       current.update();
 
-      this.stars[i].addParticles(current.x, current.y, 1);
+      this.stars[i].addParticles(current.x, current.y, 2);
       this.stars[i].animate();
       done = done && current.y > this.height;
     }
